@@ -24,7 +24,7 @@ import { delay } from "@std/async/delay";
 import {
   AMOUNT,
   apiJson,
-  buildPreVerifiedKyc,
+  buildUserDetails,
   CHAIN,
   config,
   ENV,
@@ -124,11 +124,10 @@ const ensureTreasuryWallet = async (wallets: Wallets): Promise<Wallet<Chain>> =>
 };
 
 /**
- * Step 2 - register the recipient as a KYC'd user via the REST users API: accept the
- * privacy policy, then submit the country-aware KYC payload (userDetails + kycData +
- * dueDiligence + verificationHistory, see `buildPreVerifiedKyc`). Two idempotent PUTs.
- * The regulated transfer in step 4 triggers the KYC + sanctions screen automatically,
- * so no separate verification call is needed.
+ * Step 2 - register the recipient as a user via the REST users API: submit their
+ * `userDetails` (name, date of birth, country of residence), the MINIMAL_PERSONAL_DATA tier.
+ * One idempotent PUT. The regulated transfer in step 4 triggers the KYC + sanctions screen
+ * automatically, so no separate verification call is needed.
  *
  * RECIPIENT_COUNTRY must be a SUPPORTED country of residence (e.g. US -> Crossmint
  * Horizon, or a supported European country -> Crossmint Europe). An unsupported country
@@ -140,16 +139,9 @@ const setupRecipientUser = async (): Promise<void> => {
   const s = ui.step(2, TOTAL, "Recipient user (KYC)");
   try {
     const loc = encodeURIComponent(RECIPIENT);
-    await apiJson(`/users/${loc}/legal-documents`, {
-      method: "PUT",
-      body: JSON.stringify({
-        type: "crossmint-privacy-policy",
-        acceptedAt: "2025-01-01T00:00:00.000Z",
-      }),
-    });
     await apiJson(`/users/${loc}`, {
       method: "PUT",
-      body: JSON.stringify(buildPreVerifiedKyc(config.RECIPIENT_COUNTRY)),
+      body: JSON.stringify(buildUserDetails(config.RECIPIENT_COUNTRY)),
     });
     s.ok(kycLegalEntity(config.RECIPIENT_COUNTRY).label);
   } catch (error) {

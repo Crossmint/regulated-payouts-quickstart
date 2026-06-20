@@ -12,7 +12,7 @@ How to exercise Crossmint regulated transfers end to end with this POC: the case
 ## The flow (every run)
 
 1. **Treasury wallet** - COMPANY-owned, server signer, idempotent by alias. Fund it once.
-2. **Recipient user** (REST users API): accept the privacy policy, then submit their details (`PUT /users/{id}/legal-documents`, then `PUT /users/{id}`).
+2. **Recipient user** (REST users API): submit their details (`PUT /users/{id}` with `userDetails`).
 3. **Recipient wallet** - owned by the recipient user.
 4. **Regulated transfer** - treasury to recipient, `transactionType: "regulated-transfer"`. This triggers the KYC + sanctions screen automatically (no separate verification call needed); the CLI retries while it processes, then confirms settlement via `wallet.transfers` (the userOp record can stay `pending` even after the transfer lands).
 

@@ -30,8 +30,9 @@ treasury (COMPANY) wallet  --payout-->  recipient (KYC-verified user)
 1. **Treasury wallet** - `owner: "COMPANY"`, server signer, fixed `alias`. Idempotent on the alias,
    so it is the same address every run (locator `COMPANY:<alias>`).
    [Treasury wallets guide](https://docs.crossmint.com/wallets/guides/treasury-wallets)
-2. **Recipient user** - registered via the REST users API (accept the privacy policy, then provide
-   their details). [Users REST API](https://docs.crossmint.com/wallets/quickstarts/restapi)
+2. **Recipient user** - registered via the REST users API (provide their `userDetails`: name, date
+   of birth, country of residence).
+   [Users REST API](https://docs.crossmint.com/wallets/quickstarts/restapi)
 3. **Recipient wallet** - a wallet owned by that user.
    [Create a wallet](https://docs.crossmint.com/wallets/guides/create-wallet)
 4. **Payout** - treasury to the recipient, `transactionType: "regulated-transfer"`. The transfer
