@@ -121,11 +121,8 @@ Flags: `--dry-run` (prepare only), `--debug` (show the SDK's own logs).
 
 ## Supported countries
 
-`RECIPIENT_COUNTRY` drives the recipient's KYC legal entity (`US` routes to Crossmint Horizon, a
-supported European country routes to Crossmint Europe) and must be a **supported** country of
-residence. An unsupported country (for example `CA`) is rejected at payout time and surfaces as a
-misleading `"Recipient user is sanctioned and can't receive assets"` - it means the geography is not
-supported, not that the user is sanctioned.
+`RECIPIENT_COUNTRY` must be a **supported** country of residence. An unsupported country is rejected
+at payout time.
 
 A freshly created recipient is screened first; while the screen runs the payout returns
 `"User KYC is in progress, retry in a few seconds"`. The CLI retries until it clears - seconds for a
@@ -145,16 +142,16 @@ the full test matrix.
 
 ## Configuration (env)
 
-| Var                                  | Default            | Notes                                                              |
-| ------------------------------------ | ------------------ | ------------------------------------------------------------------ |
-| `ENV`                                | `staging`          | `staging` or `production`                                          |
-| `CROSSMINT_API_KEY`                  | (required)         | server key; staging self-serve, production enabled by Crossmint    |
-| `CROSSMINT_SIGNER_SECRET`            | (required)         | server-signer secret (`deno task gen-secret`)                      |
-| `CHAIN`                              | `polygon-amoy`     | EVM chain that supports regulated transfers; use `polygon` in prod |
-| `TOKEN`                              | `usdc`             | currency symbol passed to the SDK (no chain prefix)                |
-| `TREASURY_ALIAS`                     | `payouts-treasury` | stable alias, same treasury every run                              |
-| `RECIPIENT` (+ name / DOB / country) | (sample)           | KYC'd recipient user                                               |
-| `AMOUNT`                             | `0.1`              | decimal string                                                     |
+| Var                                        | Default            | Notes                                                              |
+| ------------------------------------------ | ------------------ | ------------------------------------------------------------------ |
+| `ENV`                                      | `staging`          | `staging` or `production`                                          |
+| `CROSSMINT_API_KEY`                        | (required)         | server key; staging self-serve, production enabled by Crossmint    |
+| `CROSSMINT_SIGNER_SECRET`                  | (required)         | server-signer secret (`deno task gen-secret`)                      |
+| `CHAIN`                                    | `polygon-amoy`     | EVM chain that supports regulated transfers; use `polygon` in prod |
+| `TOKEN`                                    | `usdc`             | currency symbol passed to the SDK (no chain prefix)                |
+| `TREASURY_ALIAS`                           | `payouts-treasury` | stable alias, same treasury every run                              |
+| `RECIPIENT_EMAIL` (+ name / DOB / country) | (sample)           | KYC'd recipient user                                               |
+| `AMOUNT`                                   | `0.1`              | decimal string                                                     |
 
 ## Permissions
 

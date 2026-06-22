@@ -26,7 +26,7 @@ import {
   config,
   ENV,
   kycLegalEntity,
-  RECIPIENT,
+  RECIPIENT_EMAIL,
   serverSigner,
   TOKEN,
   TOKEN_LOCATOR,
@@ -162,7 +162,7 @@ const run = async (): Promise<Step[]> => {
   // Step 2 - recipient user via the REST users API (raw REST)
   {
     const at = mark();
-    const locator = encodeURIComponent(RECIPIENT);
+    const locator = encodeURIComponent(`email:${RECIPIENT_EMAIL}`);
     const step: Step = {
       n: 2,
       title: "Recipient user (REST users API)",
@@ -171,7 +171,7 @@ const run = async (): Promise<Step[]> => {
       docs: "https://docs.crossmint.com/stablecoin-orchestration/regulated-transfers/quickstart",
       http: [],
       outputs: {
-        recipient: RECIPIENT,
+        recipient: RECIPIENT_EMAIL,
         legalEntity: `${entity.id} (from country ${config.RECIPIENT_COUNTRY})`,
       },
       status: "ok",
@@ -207,7 +207,7 @@ const run = async (): Promise<Step[]> => {
         "Create (or reuse) a Crossmint-managed wallet owned by the recipient user. Idempotent by owner.",
       docs: "https://docs.crossmint.com/wallets/quickstarts/nodejs",
       sdk:
-        `const recipient = await wallets.createWallet({\n  chain: "${CHAIN}",\n  owner: "${RECIPIENT}",\n  recovery: serverSigner,\n});`,
+        `const recipient = await wallets.createWallet({\n  chain: "${CHAIN}",\n  owner: "email:${RECIPIENT_EMAIL}",\n  recovery: { type: "email", email: "${RECIPIENT_EMAIL}" },\n});`,
       http: [],
       outputs: {},
       status: "ok",
@@ -215,11 +215,11 @@ const run = async (): Promise<Step[]> => {
     try {
       const wallet = await wallets.createWallet({
         chain: CHAIN as Chain,
-        owner: RECIPIENT,
-        recovery: serverSigner,
+        owner: `email:${RECIPIENT_EMAIL}`,
+        recovery: { type: "email", email: RECIPIENT_EMAIL },
       });
       recipientAddress = wallet.address;
-      step.outputs = { address: wallet.address, owner: RECIPIENT };
+      step.outputs = { address: wallet.address, owner: `email:${RECIPIENT_EMAIL}` };
     } catch (error) {
       step.status = "blocked";
       step.error = errMessage(error);
@@ -397,7 +397,7 @@ const buildDoc = (steps: Step[], generatedAt: string): string => {
       ["environment", `\`${ENV}\``],
       ["chain", `\`${CHAIN}\``],
       ["token", `\`${TOKEN_LOCATOR}\``],
-      ["recipient", `\`${RECIPIENT}\` -> ${entity.label}`],
+      ["recipient", `\`${RECIPIENT_EMAIL}\` -> ${entity.label}`],
     ]),
     "Moves a stablecoin from a COMPANY treasury wallet to a KYC-verified recipient as a `regulated-transfer`, using the Crossmint wallets SDK and a server signer.",
     "## Flow",
