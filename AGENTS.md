@@ -32,7 +32,7 @@ after anything changes (for example once a gate clears).
 
 - **Step 1** treasury wallet - `owner: "COMPANY"`, server signer, fixed `alias` (idempotent -> same
   address every run, locator `COMPANY:<alias>`).
-- **Step 2** recipient user via the REST users API (accept privacy policy + details).
+- **Step 2** recipient user via the REST users API (provide their userDetails).
 - **Step 3** recipient wallet owned by that user.
 - **Step 4** the regulated transfer to the recipient's wallet **address** (not the email locator -
   `wallet.send` resolves an on-chain recipient), `transactionType: "regulated-transfer"`.

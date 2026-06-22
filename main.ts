@@ -49,14 +49,6 @@ export const RECIPIENT: string = optional(
   "RECIPIENT",
   "email:regulated-transfer-recipient@example.com",
 );
-/**
- * The recipient's email for the KYC payload. Taken from the RECIPIENT locator when it
- * is an `email:...` locator; otherwise from RECIPIENT_EMAIL (needed when RECIPIENT is a
- * `userId:...` locator, since the KYC payload still requires an email).
- */
-export const RECIPIENT_EMAIL: string = RECIPIENT.startsWith("email:")
-  ? RECIPIENT.slice("email:".length)
-  : optional("RECIPIENT_EMAIL", "regulated-transfer-recipient@example.com");
 /** Transfer amount (decimal string). Default a small fraction so a funded treasury covers many runs. */
 export const AMOUNT: string = optional("AMOUNT", "0.1");
 
@@ -102,109 +94,31 @@ export const config = {
 export const serverSigner = { type: "server" as const, secret: config.SIGNER_SECRET };
 
 /**
- * The KYC payload the client provides for a recipient: userDetails +
- * kycData + dueDiligence + verificationHistory. The regulated transfer screens this
- * data; for a supported country of residence a clean recipient clears it. The field
- * shape is country-aware - see `buildPreVerifiedKyc`.
+ * The personal data a payout recipient provides: just `userDetails` (name, date of birth,
+ * country of residence). This is the MINIMAL_PERSONAL_DATA tier - all a regulated transfer
+ * needs. The transfer screens the recipient on a sanctions-only basis at transfer time; for
+ * a supported country of residence a clean recipient clears it. kycData, dueDiligence, and
+ * verificationHistory are full-KYC (onramp) fields and are not part of a payout.
  * Docs: https://docs.crossmint.com/stablecoin-orchestration/regulated-transfers/quickstart
  */
-export type PreVerifiedKyc = {
+export type RecipientDetails = {
   userDetails: {
     firstName: string;
     lastName: string;
     dateOfBirth: string;
     countryOfResidence: string;
   };
-  kycData: {
-    nationality: string;
-    addressOfResidence: {
-      line1: string;
-      city: string;
-      stateOrRegion: string;
-      postalCode: string;
-    };
-    email: string;
-    phoneNumber: string;
-    identityDocument: { type: string; number: string; issuingCountryCode: string };
-  };
-  dueDiligence: {
-    employmentStatus: string;
-    sourceOfFunds: string;
-    industry: string;
-    estimatedYearlyIncome?: string;
-  };
-  verificationHistory: {
-    idVerificationTimestamp: string;
-    livenessVerificationTimestamp: string;
-  };
 };
 
-/** An ISO 8601 timestamp `minutes` in the past. Verification events must be recent - the
- * backend rejects timestamps older than one year. */
-const isoMinutesAgo = (minutes: number): string =>
-  new Date(Date.now() - minutes * 60_000).toISOString();
-
-/**
- * Builds the KYC payload for the recipient's country of residence. The
- * required fields are country-aware:
- * - US residents: an SSN identity document (XXX-XX-XXXX, issued by US), a phone number,
- *   and an estimatedYearlyIncome bracket in dueDiligence (all required for US).
- * - Everyone else (EU / EEA / rest of world): a passport, and NO estimatedYearlyIncome
- *   (the API rejects that field for non-US residents).
- */
-export const buildPreVerifiedKyc = (countryCode: string): PreVerifiedKyc => {
-  const country = countryCode.toUpperCase();
-  const isUS = country === "US";
-
-  const userDetails = {
+/** Builds the payout recipient's userDetails payload for the given country of residence. */
+export const buildUserDetails = (countryCode: string): RecipientDetails => ({
+  userDetails: {
     firstName: config.RECIPIENT_FIRST_NAME,
     lastName: config.RECIPIENT_LAST_NAME,
     dateOfBirth: config.RECIPIENT_DOB,
-    countryOfResidence: country,
-  };
-
-  const kycData = {
-    nationality: country,
-    addressOfResidence: isUS
-      ? {
-        line1: "123 Market Street",
-        city: "San Francisco",
-        stateOrRegion: "CA",
-        postalCode: "94105",
-      }
-      : {
-        line1: "123 King Street West",
-        city: "Toronto",
-        stateOrRegion: "ON",
-        postalCode: "M5H 1A1",
-      },
-    email: RECIPIENT_EMAIL,
-    phoneNumber: "+14155550123",
-    identityDocument: isUS
-      ? { type: "ssn", number: "123-45-6789", issuingCountryCode: "US" }
-      : { type: "passport", number: "X1234567", issuingCountryCode: country },
-  };
-
-  const dueDiligence = isUS
-    ? {
-      employmentStatus: "full-time",
-      sourceOfFunds: "salary-disbursement",
-      industry: "information",
-      estimatedYearlyIncome: "income-50k-100k",
-    }
-    : {
-      employmentStatus: "full-time",
-      sourceOfFunds: "salary-disbursement",
-      industry: "information",
-    };
-
-  const verificationHistory = {
-    idVerificationTimestamp: isoMinutesAgo(15),
-    livenessVerificationTimestamp: isoMinutesAgo(10),
-  };
-
-  return { userDetails, kycData, dueDiligence, verificationHistory };
-};
+    countryOfResidence: countryCode.toUpperCase(),
+  },
+});
 
 /**
  * Minimal Crossmint REST helper (used for the recipient-user REST setup).

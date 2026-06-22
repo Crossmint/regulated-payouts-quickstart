@@ -21,7 +21,7 @@ import { type Chain, createCrossmint, CrossmintWallets, type Wallet } from "@cro
 import { delay } from "@std/async/delay";
 import {
   AMOUNT,
-  buildPreVerifiedKyc,
+  buildUserDetails,
   CHAIN,
   config,
   ENV,
@@ -167,7 +167,7 @@ const run = async (): Promise<Step[]> => {
       n: 2,
       title: "Recipient user (REST users API)",
       what:
-        "Register the recipient as a KYC'd user via the REST users API: accept the privacy policy, then submit their details (userDetails + kycData + dueDiligence + verificationHistory). The regulated transfer triggers the KYC + sanctions screen automatically; a supported country of residence is required. No SDK method covers this, so it is two REST PUTs.",
+        "Register the recipient as a user via the REST users API: submit their userDetails (name, date of birth, country of residence), the MINIMAL_PERSONAL_DATA tier. The regulated transfer triggers the KYC + sanctions screen automatically; a supported country of residence is required. No SDK method covers this, so it is one REST PUT.",
       docs: "https://docs.crossmint.com/stablecoin-orchestration/regulated-transfers/quickstart",
       http: [],
       outputs: {
@@ -183,14 +183,10 @@ const run = async (): Promise<Step[]> => {
         body: JSON.stringify(body),
       });
     try {
-      const r1 = await put(`/users/${locator}/legal-documents`, {
-        type: "crossmint-privacy-policy",
-        acceptedAt: "2025-01-01T00:00:00.000Z",
-      });
-      const r2 = await put(`/users/${locator}`, buildPreVerifiedKyc(config.RECIPIENT_COUNTRY));
-      if (!r1.ok || !r2.ok) {
+      const r = await put(`/users/${locator}`, buildUserDetails(config.RECIPIENT_COUNTRY));
+      if (!r.ok) {
         step.status = "blocked";
-        step.error = `users PUT returned ${r1.ok ? r2.status : r1.status}`;
+        step.error = `users PUT returned ${r.status}`;
       }
     } catch (error) {
       step.status = "blocked";
