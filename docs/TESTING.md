@@ -18,7 +18,7 @@ How to exercise Crossmint regulated transfers end to end with this POC: the case
 
 ## The one gotcha: supported country
 
-`RECIPIENT_COUNTRY` must be a **supported** country of residence: `US` routes to Crossmint Horizon, a supported European country routes to Crossmint Europe. An unsupported country (e.g. `CA`) is rejected at transfer time and surfaces as the misleading `"Recipient user is sanctioned and can't receive assets"` (it means the geo is not supported, not that the user is sanctioned).
+`RECIPIENT_COUNTRY` must be a **supported** country of residence. An unsupported country (e.g. `CA`) is rejected at transfer time.
 
 ## Commands
 
@@ -33,7 +33,7 @@ How to exercise Crossmint regulated transfers end to end with this POC: the case
 | 1 | production | polygon | US (supported) | transfer succeeds |
 | 2 | production | polygon | any, dry run | prepares, no funds move |
 | 3 | staging | polygon-amoy | supported | transfer succeeds (same as prod) |
-| 4 | production | polygon | unsupported (e.g. CA) | rejected with the misleading "sanctioned" error |
+| 4 | production | polygon | unsupported (e.g. CA) | rejected (unsupported country) |
 
 ### Case 1 - production, supported country
 
@@ -41,7 +41,7 @@ How to exercise Crossmint regulated transfers end to end with this POC: the case
 # .env
 ENV="production"
 CHAIN="polygon"
-RECIPIENT="email:<recipient-email>"
+RECIPIENT_EMAIL="<recipient-email>"
 RECIPIENT_COUNTRY="US"
 AMOUNT="0.1"
 ```
@@ -66,7 +66,7 @@ Set `ENV="staging"`, `CHAIN="polygon-amoy"`, and a supported `RECIPIENT_COUNTRY`
 
 ### Case 4 - unsupported country
 
-Set `RECIPIENT_COUNTRY="CA"`. The transfer is rejected with the misleading "sanctioned" message. Switch to a supported country to proceed.
+Set `RECIPIENT_COUNTRY="CA"`. The transfer is rejected because the country is not supported. Switch to a supported country to proceed.
 
 ## Docs
 

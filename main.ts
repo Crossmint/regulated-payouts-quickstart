@@ -44,10 +44,10 @@ export const TREASURY_ALIAS: string = optional("TREASURY_ALIAS", "payouts-treasu
 /** The treasury's Crossmint locator: `COMPANY:<alias>`. Reused across runs - no extra env var. */
 export const TREASURY_LOCATOR: string = `COMPANY:${TREASURY_ALIAS}`;
 
-/** Recipient locator: "email:..." or "userId:...". */
-export const RECIPIENT: string = optional(
-  "RECIPIENT",
-  "email:regulated-transfer-recipient@example.com",
+/** Recipient email. */
+export const RECIPIENT_EMAIL: string = optional(
+  "RECIPIENT_EMAIL",
+  "regulated-transfer-recipient@example.com",
 );
 /** Transfer amount (decimal string). Default a small fraction so a funded treasury covers many runs. */
 export const AMOUNT: string = optional("AMOUNT", "0.1");

@@ -52,9 +52,8 @@ after anything changes (for example once a gate clears).
 - **Not configured to support regulated transfers KYC** - project's region/entity not set (this is
   the EU-vs-US gate; see below).
 - **Recipient KYC in progress** - transient; the script retries.
-- **Recipient sanctioned / can't receive assets** - most often the recipient's `countryOfResidence`
-  is not supported (the message is misleading; the geography is the cause). Use a supported country.
-  A freshly created recipient is screened first; this is transient while the screen runs.
+- **Recipient screening / can't receive assets** - use a supported `countryOfResidence`. A freshly
+  created recipient is screened first, so this can be transient while the screen runs.
 - **Insufficient balance** - fund the treasury with the token being sent.
 
 ## EU vs US

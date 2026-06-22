@@ -6,7 +6,7 @@
  *   deno task inspect
  */
 import { type Chain, createCrossmint, CrossmintWallets } from "@crossmint/wallets-sdk";
-import { CHAIN, config, RECIPIENT, serverSigner, TOKEN, TREASURY_ALIAS } from "../main.ts";
+import { CHAIN, config, RECIPIENT_EMAIL, serverSigner, TOKEN, TREASURY_ALIAS } from "../main.ts";
 import * as ui from "../ui.ts";
 
 ui.quietSdkLogs(true);
@@ -21,8 +21,8 @@ const treasury = await wallets.createWallet({
 });
 const recipient = await wallets.createWallet({
   chain: CHAIN as Chain,
-  owner: RECIPIENT,
-  recovery: serverSigner,
+  owner: `email:${RECIPIENT_EMAIL}`,
+  recovery: { type: "email", email: RECIPIENT_EMAIL },
 });
 
 console.log("=== balances (wallet.balances) ===");

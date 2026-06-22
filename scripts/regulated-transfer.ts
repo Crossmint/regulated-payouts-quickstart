@@ -29,7 +29,7 @@ import {
   config,
   ENV,
   kycLegalEntity,
-  RECIPIENT,
+  RECIPIENT_EMAIL,
   serverSigner,
   TOKEN,
   TOKEN_LOCATOR,
@@ -76,21 +76,18 @@ const confirmSettlement = async (
 ): Promise<SendResult | null> => {
   for (let attempt = 1; attempt <= SETTLE_RETRY.attempts; attempt++) {
     try {
-      const { data } = await treasury.transfers({ tokens: TOKEN, status: "successful" }) as {
-        data: Array<
-          {
-            type?: string;
-            completedAt?: string;
-            onChain?: { txId?: string; explorerLink?: string };
-          }
-        >;
-      };
+      const { data } = await treasury.transfers({ tokens: TOKEN, status: "successful" });
+      // Matches the newest successful transfer
       const match = data.find((t) =>
         t.type === "wallets.transfer.out" && t.completedAt != null &&
         new Date(t.completedAt).getTime() >= since
       );
       if (match?.onChain?.txId) {
-        return { hash: match.onChain.txId, explorerLink: match.onChain.explorerLink };
+        return {
+          transactionId: match.transferId,
+          hash: match.onChain.txId,
+          explorerLink: match.onChain.explorerLink,
+        };
       }
     } catch {
       // transfers list not ready yet; keep polling
@@ -129,16 +126,13 @@ const ensureTreasuryWallet = async (wallets: Wallets): Promise<Wallet<Chain>> =>
  * One idempotent PUT. The regulated transfer in step 4 triggers the KYC + sanctions screen
  * automatically, so no separate verification call is needed.
  *
- * RECIPIENT_COUNTRY must be a SUPPORTED country of residence (e.g. US -> Crossmint
- * Horizon, or a supported European country -> Crossmint Europe). An unsupported country
- * (e.g. CA) is rejected, surfacing as the misleading "Recipient user is sanctioned and
- * can't receive assets".
+ * RECIPIENT_COUNTRY must be a supported country of residence.
  * Docs: https://docs.crossmint.com/stablecoin-orchestration/regulated-transfers/quickstart
  */
 const setupRecipientUser = async (): Promise<void> => {
   const s = ui.step(2, TOTAL, "Recipient user (KYC)");
   try {
-    const loc = encodeURIComponent(RECIPIENT);
+    const loc = encodeURIComponent(`email:${RECIPIENT_EMAIL}`);
     await apiJson(`/users/${loc}`, {
       method: "PUT",
       body: JSON.stringify(buildUserDetails(config.RECIPIENT_COUNTRY)),
@@ -159,8 +153,11 @@ const ensureRecipientWallet = async (wallets: Wallets): Promise<string> => {
   try {
     const wallet = await wallets.createWallet({
       chain: CHAIN as Chain,
-      owner: RECIPIENT,
-      recovery: serverSigner,
+      owner: `email:${RECIPIENT_EMAIL}`,
+      recovery: {
+        type: "email",
+        email: RECIPIENT_EMAIL,
+      },
     });
     s.ok(wallet.address);
     return wallet.address;
@@ -270,7 +267,7 @@ const main = async (): Promise<void> => {
   ui.kv("chain", CHAIN);
   ui.kv("token", TOKEN_LOCATOR);
   ui.kv("amount", AMOUNT);
-  ui.kv("recipient", `${RECIPIENT}  (${config.RECIPIENT_COUNTRY} -> ${entity.label})`);
+  ui.kv("recipient email", `${RECIPIENT_EMAIL}  (${config.RECIPIENT_COUNTRY} -> ${entity.label})`);
   ui.kv("treasury", `${TREASURY_LOCATOR}  (created or reused, idempotent by alias)`);
   ui.kv("signer", "server (address derived locally from the secret)");
   ui.kv(
