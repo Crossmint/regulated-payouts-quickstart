@@ -86,7 +86,8 @@ use a production key, and set a production chain.
 ## Quickstart
 
 ```bash
-git clone <this-repo> && cd <this-repo>
+git clone https://github.com/Crossmint/regulated-payouts-quickstart
+cd regulated-payouts-quickstart
 cp .env.example .env
 
 deno task gen-secret        # prints xmsk1_... -> paste into .env as CROSSMINT_SIGNER_SECRET
@@ -97,9 +98,8 @@ deno task transfer          # execute the payout
 deno task inspect           # balances + recent transfers, via the SDK
 ```
 
-Fund the treasury once: on staging, mint Crossmint's staging token with `deno task`
-(`await treasury.stagingFund(...)`) or send testnet USDC from the
-[Circle faucet](https://faucet.circle.com) to the treasury address.
+Fund the treasury once: send testnet USDC from the [Circle faucet](https://faucet.circle.com) to the
+treasury address printed in step 1.
 [Get staging tokens](https://docs.crossmint.com/wallets/guides/get-staging-tokens)
 
 The setup steps are idempotent, so it is safe to re-run. The treasury is reused via its alias - fund
@@ -147,6 +147,7 @@ the full test matrix.
 | `ENV`                                      | `staging`          | `staging` or `production`                                          |
 | `CROSSMINT_API_KEY`                        | (required)         | server key; staging self-serve, production enabled by Crossmint    |
 | `CROSSMINT_SIGNER_SECRET`                  | (required)         | server-signer secret (`deno task gen-secret`)                      |
+| `CROSSMINT_BASE_URL`                       | (auto)             | override the API base (e.g. a Flightcontrol preview URL)           |
 | `CHAIN`                                    | `polygon-amoy`     | EVM chain that supports regulated transfers; use `polygon` in prod |
 | `TOKEN`                                    | `usdc`             | currency symbol passed to the SDK (no chain prefix)                |
 | `TREASURY_ALIAS`                           | `payouts-treasury` | stable alias, same treasury every run                              |
