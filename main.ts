@@ -26,9 +26,9 @@ export const ENV: string = optional("ENV", "staging");
 const isStaging = ENV !== "production";
 
 /**
- * Override the Crossmint API base URL. Useful for testing against a Flightcontrol
- * preview or a local dev server without changing ENV. When unset, the URL is derived
- * from ENV (staging.crossmint.com or www.crossmint.com).
+ * Override the Crossmint API base URL. Useful for testing against a preview
+ * deployment or a local dev server without changing ENV. When unset, the URL is
+ * derived from ENV (staging.crossmint.com or www.crossmint.com).
  */
 const BASE_URL: string | undefined = Deno.env.get("CROSSMINT_BASE_URL") || undefined;
 

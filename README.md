@@ -147,7 +147,7 @@ the full test matrix.
 | `ENV`                                      | `staging`          | `staging` or `production`                                          |
 | `CROSSMINT_API_KEY`                        | (required)         | server key; staging self-serve, production enabled by Crossmint    |
 | `CROSSMINT_SIGNER_SECRET`                  | (required)         | server-signer secret (`deno task gen-secret`)                      |
-| `CROSSMINT_BASE_URL`                       | (auto)             | override the API base (e.g. a Flightcontrol preview URL)           |
+| `CROSSMINT_BASE_URL`                       | (auto)             | override the API base URL                                          |
 | `CHAIN`                                    | `polygon-amoy`     | EVM chain that supports regulated transfers; use `polygon` in prod |
 | `TOKEN`                                    | `usdc`             | currency symbol passed to the SDK (no chain prefix)                |
 | `TREASURY_ALIAS`                           | `payouts-treasury` | stable alias, same treasury every run                              |

@@ -10,6 +10,7 @@ import {
   CHAIN,
   config,
   RECIPIENT_EMAIL,
+  serverSigner,
   TOKEN,
   TREASURY_ALIAS,
   TREASURY_LOCATOR,
@@ -23,24 +24,33 @@ const main = async (): Promise<void> => {
 
   let treasury;
   try {
-    treasury = await wallets.getWallet(`COMPANY:${TREASURY_ALIAS}`, {
+    treasury = await wallets.createWallet({
       chain: CHAIN as Chain,
+      owner: "COMPANY",
+      alias: TREASURY_ALIAS,
+      recovery: serverSigner,
     });
-  } catch {
+  } catch (error) {
     console.error(
-      `Treasury wallet not found (${TREASURY_LOCATOR}). Run \`deno task transfer:dry\` first to create it.`,
+      `Failed to resolve treasury wallet (${TREASURY_LOCATOR}): ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     );
     Deno.exit(1);
   }
 
   let recipient;
   try {
-    recipient = await wallets.getWallet(`email:${RECIPIENT_EMAIL}`, {
+    recipient = await wallets.createWallet({
       chain: CHAIN as Chain,
+      owner: `email:${RECIPIENT_EMAIL}`,
+      recovery: { type: "email", email: RECIPIENT_EMAIL },
     });
-  } catch {
+  } catch (error) {
     console.error(
-      `Recipient wallet not found (email:${RECIPIENT_EMAIL}). Run \`deno task transfer:dry\` first to create it.`,
+      `Failed to resolve recipient wallet (email:${RECIPIENT_EMAIL}): ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     );
     Deno.exit(1);
   }
