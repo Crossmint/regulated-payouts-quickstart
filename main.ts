@@ -25,6 +25,13 @@ const optional = (name: string, fallback: string): string => Deno.env.get(name) 
 export const ENV: string = optional("ENV", "staging");
 const isStaging = ENV !== "production";
 
+/**
+ * Override the Crossmint API base URL. Useful for testing against a preview
+ * deployment or a local dev server without changing ENV. When unset, the URL is
+ * derived from ENV (staging.crossmint.com or www.crossmint.com).
+ */
+const BASE_URL: string | undefined = Deno.env.get("CROSSMINT_BASE_URL") || undefined;
+
 /** Chain string. Default `polygon-amoy` (an EVM testnet that supports regulated transfers). */
 export const CHAIN: string = optional("CHAIN", "polygon-amoy");
 /**
@@ -80,9 +87,9 @@ export const config = {
    * countries like CA are rejected at transfer time.
    */
   RECIPIENT_COUNTRY: optional("RECIPIENT_COUNTRY", "US"),
-  /** Versioned REST root, env-aware. */
+  /** Versioned REST root, env-aware (or overridden by CROSSMINT_BASE_URL). */
   apiRoot: `${
-    isStaging ? "https://staging.crossmint.com" : "https://www.crossmint.com"
+    BASE_URL ?? (isStaging ? "https://staging.crossmint.com" : "https://www.crossmint.com")
   }/api/2025-06-09`,
 } as const;
 

@@ -7,7 +7,7 @@ How to exercise Crossmint regulated transfers end to end with this POC: the case
 - A Crossmint project and a server-side API key. Staging is self-serve; production payouts are enabled by Crossmint (reach out to your Crossmint contact).
 - A server API key for that project (`CROSSMINT_API_KEY`).
 - A server-signer secret: `deno task gen-secret`, then set `CROSSMINT_SIGNER_SECRET`.
-- For a live transfer, the treasury funded with the chain's USDC. On polygon that is native USDC `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` (not bridged USDC.e `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`). Use a small `AMOUNT` (e.g. `0.1`) so one funding covers many runs.
+- For a live transfer, the treasury funded with the chain's USDC. On production polygon, that is native USDC `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` (not bridged USDC.e `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`). On staging polygon-amoy, use testnet USDC from the [Circle faucet](https://faucet.circle.com). Use a small `AMOUNT` (e.g. `0.1`) so one funding covers many runs.
 
 ## The flow (every run)
 
